@@ -1,47 +1,58 @@
-/*8cfaca83d473b234fd7080a5361036bb
-{
-    "coord": {
-      "lon": 10.99,
-      "lat": 44.34
-    },
-    "weather": [
-      {
-        "id": 804,
-        "main": "Clouds",
-        "description": "overcast clouds",
-        "icon": "04n"
-      }
-    ],
-    "base": "stations",
-    "main": {
-      "temp": 283.33,
-      "feels_like": 282.73,
-      "temp_min": 281.3,
-      "temp_max": 284.86,
-      "pressure": 1032,
-      "humidity": 89,
-      "sea_level": 1032,
-      "grnd_level": 944
-    },
-    "visibility": 10000,
-    "wind": {
-      "speed": 1.2,
-      "deg": 305,
-      "gust": 1.67
-    },
-    "clouds": {
-      "all": 100
-    },
-    "dt": 1668126900,
-    "sys": {
-      "type": 2,
-      "id": 2075663,
-      "country": "IT",
-      "sunrise": 1668146779,
-      "sunset": 1668182034
-    },
-    "timezone": 3600,
-    "id": 3163858,
-    "name": "Zocca",
-    "cod": 200
-  } */
+// Variáveis e seleção de elementos
+const apiKey = "8cfaca83d473b234fd7080a5361036bb";
+const apiCountryURL = "https://countryflagsapi.com/png/";
+const apiUnsplash = "https://source.unsplash.com/1600x900/?";
+
+const cityInput = document.querySelector("#city-input");
+const searchBtn = document.querySelector("#search");
+
+const cityElement = document.querySelector("#city");
+const tempElement = document.querySelector("#temperature span");
+const descElement = document.querySelector("#description");
+const weatherIconElement = document.querySelector("#weather-icon");
+const countryElement = document.querySelector("#country");
+const humidityElement = document.querySelector("#humidity span");
+const windElement = document.querySelector("#wind span");
+
+const weatherContainer = document.querySelector("#weather-data");
+// Funções
+const getWeatherData = async (city) => {
+  const apiWeatherURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}&lang=pt_br`;
+  const res = await fetch(apiWeatherURL);
+  const data = await res.json();
+
+  return data;
+};
+
+const showWeatherData = async (city) => {
+  const data = await getWeatherData(city);
+
+  cityElement.innerText = data.name;
+  tempElement.innerText = parseInt(data.main.temp);
+  descElement.innerText = data.weather[0].description;
+  weatherIconElement.setAttribute(
+    "src",
+    `http://openweathermap.org/img/wn${data.weather[0].icon}.png`
+  );
+  countryElement.setAttribute("src", apiCountryURL + data.sys.country);
+  humidityElement.innerText = `${data.main.humidity}%`;
+  windElement.innerText = `${data.wind.speed}km/h`;
+
+  weatherContainer.classList.remove("hide");
+};
+// Eventos
+searchBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  const city = cityInput.value;
+  showWeatherData(city);
+});
+
+cityInput.addEventListener("keyup", (e) => {
+  if (e.code === "Enter") {
+    const city = e.target.value;
+
+    showWeatherData(city);
+  }
+});
+
